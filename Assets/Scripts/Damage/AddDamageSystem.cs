@@ -5,7 +5,7 @@ using UnityEngine;
 [UpdateInGroup(typeof(SimulationSystemGroup))]
 [UpdateBefore(typeof(DamageSystem))]
 public class AddDamageSystem : JobComponentSystem
-{   
+{
     BeginSimulationEntityCommandBufferSystem beginSimulationEcbSystem;
 
     protected override void OnCreate()
@@ -21,7 +21,7 @@ public class AddDamageSystem : JobComponentSystem
         var spaceDown = Input.GetKeyDown(KeyCode.Space);
         var ecb = beginSimulationEcbSystem.CreateCommandBuffer().ToConcurrent();
 
-        var jobHandle = Entities
+        inputDeps = Entities
             .ForEach((Entity entity, int entityInQueryIndex, ref HealthComponent health) =>
             {
                 if (spaceDown)
@@ -30,7 +30,8 @@ public class AddDamageSystem : JobComponentSystem
                 }
             }).Schedule(inputDeps);
 
-        jobHandle.Complete();
-        return default;
+        inputDeps.Complete();
+
+        return inputDeps;
     }
 }

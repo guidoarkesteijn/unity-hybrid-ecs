@@ -23,7 +23,7 @@ public class AddDeathSystem : JobComponentSystem
     {
         var ecb = endSimulationEcbSystem.CreateCommandBuffer().ToConcurrent();
 
-        var jobHandle = Entities
+        inputDeps = Entities
             .ForEach((Entity entity, int entityInQueryIndex, ref HealthComponent health, ref DamageComponent damageComponent) =>
             {
                 ecb.RemoveComponent<DamageComponent>(entityInQueryIndex, entity);
@@ -34,7 +34,8 @@ public class AddDeathSystem : JobComponentSystem
                 }
             }).Schedule(inputDeps);
 
-        jobHandle.Complete();
-        return default;
+        inputDeps.Complete();
+
+        return inputDeps;
     }
 }
