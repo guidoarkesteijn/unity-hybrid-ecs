@@ -2,36 +2,30 @@
 using Unity.Jobs;
 using UnityEngine;
 
-[UpdateInGroup(typeof(SimulationSystemGroup))]
-[UpdateBefore(typeof(DamageSystem))]
-public class AddDamageSystem : JobComponentSystem
+public class AddDamageSystem : SystemBase
 {
-    BeginSimulationEntityCommandBufferSystem beginSimulationEcbSystem;
+    BeginSimulationEntityCommandBufferSystem cbs;
 
     protected override void OnCreate()
     {
         base.OnCreate();
 
-        beginSimulationEcbSystem = World
-            .GetOrCreateSystem<BeginSimulationEntityCommandBufferSystem>();
+        cbs = World.GetOrCreateSystem<BeginSimulationEntityCommandBufferSystem>();
     }
 
-    protected override JobHandle OnUpdate(JobHandle inputDeps)
+    protected override void OnUpdate()
     {
-        var spaceDown = Input.GetKeyDown(KeyCode.Space);
-        var ecb = beginSimulationEcbSystem.CreateCommandBuffer().ToConcurrent();
+        var buttonDown = Input.GetKeyDown(KeyCode.Space);
+        var ecb = cbs.CreateCommandBuffer().ToConcurrent();
 
-        inputDeps = Entities
-            .ForEach((Entity entity, int entityInQueryIndex, ref HealthComponent health) =>
+        Entities.ForEach((Entity entity, int entityInQueryIndex, ref HealthComponent health) =>
+        {
+            if (buttonDown)
             {
-                if (spaceDown)
-                {
-                    ecb.AddComponent(entityInQueryIndex, entity, new DamageComponent { Value = 5 });
-                }
-            }).Schedule(inputDeps);
+                ecb.AddComponent(entityInQueryIndex, entity, new DamageComponent { Value = 5 });
+            }
+        }).Schedule();
 
-        inputDeps.Complete();
-
-        return inputDeps;
+        cbs.AddJobHandleForProducer(Dependency);
     }
 }

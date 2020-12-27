@@ -1,41 +1,34 @@
 ﻿using Unity.Entities;
 using Unity.Jobs;
-using Unity.Mathematics;
 
-[UpdateInGroup(typeof(SimulationSystemGroup))]
-[UpdateAfter(typeof(DamageSystem))]
-public class AddDeathSystem : JobComponentSystem
+public class AddDeathSystem : SystemBase
 {
-    EndSimulationEntityCommandBufferSystem endSimulationEcbSystem;
-    AddDamageSystem addDamageSystem;
+    EndSimulationEntityCommandBufferSystem ecb;
 
     protected override void OnCreate()
     {
         base.OnCreate();
 
-        endSimulationEcbSystem = World
-            .GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
-
-        addDamageSystem = World.GetOrCreateSystem<AddDamageSystem>();
+        ecb = World.GetOrCreateSystem<EndSimulationEntityCommandBufferSystem>();
     }
 
-    protected override JobHandle OnUpdate(JobHandle inputDeps)
+    protected override void OnUpdate()
     {
-        var ecb = endSimulationEcbSystem.CreateCommandBuffer().ToConcurrent();
+        var buffer = ecb.CreateCommandBuffer().ToConcurrent();
 
-        inputDeps = Entities
+        Entities
             .ForEach((Entity entity, int entityInQueryIndex, ref HealthComponent health, ref DamageComponent damageComponent) =>
             {
-                ecb.RemoveComponent<DamageComponent>(entityInQueryIndex, entity);
+                buffer.RemoveComponent<DamageComponent>(entityInQueryIndex, entity);
 
                 if (health.CurrentHealth == 0)
                 {
-                    ecb.AddComponent(entityInQueryIndex, entity, new DeathComponent());
+                    buffer.AddComponent(entityInQueryIndex, entity, new DeathComponent());
                 }
-            }).Schedule(inputDeps);
+            }).Schedule();
 
-        inputDeps.Complete();
+        ecb.AddJobHandleForProducer(Dependency);
 
-        return inputDeps;
+        return;
     }
 }
