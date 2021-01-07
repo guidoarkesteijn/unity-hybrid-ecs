@@ -16,7 +16,7 @@ public class AddDamageSystem : SystemBase
     protected override void OnUpdate()
     {
         var buttonDown = Input.GetKeyDown(KeyCode.Space);
-        var ecb = cbs.CreateCommandBuffer().ToConcurrent();
+        var ecb = cbs.CreateCommandBuffer().AsParallelWriter();
 
         Entities.ForEach((Entity entity, int entityInQueryIndex, ref HealthComponent health) =>
         {

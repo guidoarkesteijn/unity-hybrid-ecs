@@ -16,7 +16,7 @@ public class StartTimerSystem : SystemBase
     {
         bool isKeyDown = Input.GetKeyDown(KeyCode.S);
 
-        var buffer = cbs.CreateCommandBuffer().ToConcurrent();
+        var buffer = cbs.CreateCommandBuffer().AsParallelWriter();
 
         Entities.ForEach((Entity entity, int entityInQueryIndex, in TimerComponent timer) =>
         {

@@ -14,7 +14,7 @@ public class CleanupEntitiesSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var concurrent = ecb.CreateCommandBuffer().ToConcurrent();
+        var concurrent = ecb.CreateCommandBuffer().AsParallelWriter();
 
         Entities.ForEach((Entity entity, int entityInQueryIndex, ref LifetimeComponent lifetime) =>
         {
