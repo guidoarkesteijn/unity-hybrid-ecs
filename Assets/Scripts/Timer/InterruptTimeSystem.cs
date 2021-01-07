@@ -16,7 +16,7 @@ public class InterruptTimeSystem : SystemBase
     {
         bool isKeyDown = Input.GetKeyDown(KeyCode.I);
 
-        var buffer = cbs.CreateCommandBuffer().ToConcurrent();
+        var buffer = cbs.CreateCommandBuffer().AsParallelWriter();
 
         Entities.ForEach((Entity entity, int entityInQueryIndex, ref TimeComponent time) =>
         {

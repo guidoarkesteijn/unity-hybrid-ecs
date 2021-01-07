@@ -14,7 +14,7 @@ public class AddDeathSystem : SystemBase
 
     protected override void OnUpdate()
     {
-        var buffer = ecb.CreateCommandBuffer().ToConcurrent();
+        var buffer = ecb.CreateCommandBuffer().AsParallelWriter();
 
         Entities
             .ForEach((Entity entity, int entityInQueryIndex, ref HealthComponent health, ref DamageComponent damageComponent) =>
